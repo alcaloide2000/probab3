@@ -41,12 +41,16 @@ carinput = dbc.Card(
             html.P("CHOOSE AN INDEX AND A PERIOD OF TIME IN YEARS", className="card-text"),
             dcc.Dropdown(id='index-picker',options=index_options,value=litickers[0]),
             dcc.Dropdown(id='year-picker', options=year_options, value=liyears[0]),
+            html.P("The app calculates the probability distribution of the rate of return for a period of time invested in an index, considering all possible "
+                   "periods from 1970 until today and using data downloaded from Yahoo Finance. ", className="card-text"),
+            html.P("The app calculates the probability distribution for the next year,"
+                   " assuming a certain rate of return during the last year.", className="card-text"),
         ]),
     ], color="#d5def5",
 )
 
 
-app = Dash()
+app = Dash(__name__,external_stylesheets=[dbc.themes.SPACELAB])
 server = app.server
 
 app.layout = dbc.Container(
@@ -99,7 +103,7 @@ def esperanzatickera(ticker,year):
 
     migraf10 = px.line(dfcoti0['Close'])
 
-    migraf5 = px.histogram(data['crece_n2'],marginal="box")
+    migraf5 = px.histogram(data['crece_n2'],labels={'crece_n2':'Your New Label'},marginal="box")
 
     caroutput0 = dbc.Card(
         [
@@ -116,12 +120,18 @@ def esperanzatickera(ticker,year):
     caroutput = dbc.Card(
         [
             dbc.CardBody([
-                html.H4("INDEX SELECTED: {} LAST YEAR CGAR {}".format(ticker,lastyearcgar), className="card-title"),
+                html.H4("RATE OF RETURN PROBABILITY DISTRIBUTION FOR {} YEAR INVESTED IN THE TICKER :{}".format(year, ticker),
+                        className="card-title"),
                 dbc.Row(
                     [dbc.Col(dcc.Graph(figure= migraf5),width=12)
                      ]
                 ),
-                html.H4("PROBABILTY DISTRIBUTION FOR {} YEAR INVESTED FOR THE TICKER{}".format(year,ticker), className="card-title"),
+
+                html.H4("TICKER SELECTED: {} ".format(ticker),
+                        className="card-title"),
+                html.H4(
+                    "THE RATE OF RETURN FOR THE LAST PERIOD ({} years from today {}) WAS : {}%".format(year, end, lastyearcgar*100),
+                    className="card-title"),
             ]),
         ], color="#d5def5", inverse= False
     )
@@ -136,7 +146,8 @@ def esperanzatickera(ticker,year):
     caroutput2 = dbc.Card(
         [
             dbc.CardBody([
-                html.H4("SELECT A RANGE FOR NEXT YEAR CAGR", className="card-title"),
+                html.H4("ESTIMATE THE RATE OF RETURN PROBABILITY DISTRIBUTION FOR HE NEXT YEAR FROM TODAY {}".format(end), className="card-title"),
+                html.H4("SELECT the rate of return achieved during the previous period", className="card-title"),
                 dcc.RangeSlider(id ='slider1',min=valmin, max =valmax, step = 0.04, value=[lastyearcgar-0.02, lastyearcgar+0.02],persistence=True)
             ]),
         ], color="#d5def5",
