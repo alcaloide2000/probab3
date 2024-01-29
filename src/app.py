@@ -91,19 +91,22 @@ def esperanzatickera(ticker,year):
     dfcoti0 = pd.DataFrame(secoti0)
     data = dfcoti0.copy()
     data['crece_n'] = data['Close'].pct_change(periods=int(year)*252)
-    data['crece_n2'] = round(data['crece_n'],2)
-    data = data[pd.notnull(data["crece_n2"])]
-    lastyearcgar = list(data["crece_n2"])[-1]
-    listacrecen2 = list(data['crece_n2'])
+    data['rate_of_return'] = round(data['crece_n'],2)
+    data = data[pd.notnull(data["rate_of_return"])]
+    lastyearcgar = list(data["rate_of_return"])[-1]
+    listacrecen2 = list(data['rate_of_return'])
     listadesp = [listacrecen2[x + 252] for x in range(0, len(listacrecen2) - 252)]
     listaceros = [0] * 252
     listadesp.extend(listaceros)
-    data['crecen2desp'] = listadesp
+    data['rate_of_return_after'] = listadesp
     data = data.iloc[0:len(data) - 252, :]
 
     migraf10 = px.line(dfcoti0['Close'])
 
-    migraf5 = px.histogram(data['crece_n2'],labels={'crece_n2':'Your New Label'},marginal="box")
+    migraf5 = px.histogram(data['rate_of_return'],marginal="box")
+    migraf5.update_layout(xaxis_title='rate of return',
+                          yaxis_title='number of times',
+                          )
 
     caroutput0 = dbc.Card(
         [
@@ -136,7 +139,7 @@ def esperanzatickera(ticker,year):
         ], color="#d5def5", inverse= False
     )
 
-    lidataunique = sorted(data.crece_n2.unique())
+    lidataunique = sorted(data.rate_of_return.unique())
     valmin = lidataunique[0]
     valmax = lidataunique[-1]
     # for crecen2 in lidataunique:
@@ -161,15 +164,18 @@ def esperanzatickera(ticker,year):
 
 def esperanzadesp(didata,licrecen2):
     data = pd.DataFrame(didata)
-    dffiltrada = data.loc[(data['crece_n2'] >= licrecen2[0]) & (data['crece_n2'] <= licrecen2[1])]
-    migraf9 = px.histogram(dffiltrada['crecen2desp'],marginal="box")
+    dffiltrada = data.loc[(data['rate_of_return'] >= licrecen2[0]) & (data['rate_of_return'] <= licrecen2[1])]
+    migraf9 = px.histogram(dffiltrada['rate_of_return_after'],marginal="box")
+    migraf9.update_layout(xaxis_title='rate of return after',
+                          yaxis_title='number of times',
+                          )
     caroutput3 = dbc.Card(
         [
             dbc.CardBody([
 
 
                 dcc.Graph(figure=migraf9),
-                html.H4("PROBABILTY DISTRIBUTION FOR THE NEXT YEAR FOR A RANGE {}-{}".format(licrecen2[0],licrecen2[1]),
+                html.H4("PROBABILTY DISTRIBUTION FOR THE NEXT YEAR FOR A RETURN RATE RANGE ({}-{}) OBTAINED THE PREVIOUS YEAR ".format(licrecen2[0],licrecen2[1]),
                         className="card-title"),
             ]),
         ], color="#d5def5",
